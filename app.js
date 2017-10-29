@@ -1,30 +1,56 @@
+d3.select('#reset')
+		.on('click', function() {
+			d3.selectAll('.letter')
+				.remove();
+
+			d3.select('#phase')
+					.text('');
+
+			d3.select('#count')
+					.text('');
+		})
+
 d3.select('#form')
-	.on('submit', function() {
-		d3.event.preventDefault();
-		var input = d3.select('input');
-		var text = input.property('value');
+		.on('submit', function() {
+			d3.event.preventDefault();
+			var input = d3.select('input');
+			var text = input.property('value');
 
-		d3.select('#letters')
-			.selectAll('.letter')
-			.data(getFrequencies(text))
-			.enter()
-			.append('div')
-				.classed('letter', true)
-				.style('width', '20px')
-				.style('line-height', '20px')
-				.style('margin-right', '5px')
-				.style('height', function(d) {
-					return d.count * 30 + 'px';
-				})
-				.text(function(d) {
-					return d.character;
-				});
+			var letters = d3.select('#letters')
+											.selectAll('.letter')
+											.data(getFrequencies(text), function(d) {
+												return d.character;
+											});
 
-		d3.select('#phrase')
-				.text('Analysis of: ' + text);
+			letters
+					.classed('new', false)
+				.exit()
+				.remove();
 
-		input.property('value', '');
-	});
+			letters
+				.enter()
+				.append('div')
+					.classed('letter', true)
+					.classed('new', true)
+				.merge(letters)
+					.style('width', '20px')
+					.style('line-height', '20px')
+					.style('margin-right', '5px')
+					.style('height', function(d) {
+						return d.count * 30 + 'px';
+					})
+					.text(function(d) {
+						return d.character;
+					});
+
+			d3.select('#phrase')
+					.text('Analysis of: ' + text);
+
+			d3.select('#count')
+					.text('(New characters: ' + letters.enter().nodes().length + ')');
+
+			input.property('value', '');
+		});
 
 function getFrequencies(str) {
 	var sorted = str.split("").sort();
@@ -36,3 +62,4 @@ function getFrequencies(str) {
 	}
 	return data;
 }
+		
